@@ -51,14 +51,52 @@
 </div>
 <div class="settings">
     <button id="close-button">Все видео</button>
+    <br>
+    <input type="range" name="brightness" id="brightness" min='0' max='5' step="0.01" value='1'>
+    <br>
+    <input type="range" name="contrast" id="contrast" min='0' max='5' step="0.01" value='1'>
+    <br>
+    <button id='reset-button'>Сбросить фильтры</button>
 </div>
-<script src="resize.js"></script>
 <script>
     const firstVideoElement = document.getElementById('video-1');
     const secondVideoElement = document.getElementById('video-2');
     const thirdVideoElement = document.getElementById('video-3');
     const fourthVideoElement = document.getElementById('video-4');
     const closeButtonElement = document.getElementById('close-button');
+    const resetButtonElement = document.getElementById('reset-button');
+    let selectedVideo = null;
+    const brightnessControl = document.getElementById('brightness');
+    const contrastControl = document.getElementById('contrast');
+    const onClickVideo = (e) => {
+    const videoElement = e.target;
+    const settingsContainer = document.querySelector('.settings');
+    selectedVideo = videoElement;
+    videoElement.classList.add('full-screen');
+    settingsContainer.classList.add('visible');
+    }
+
+    const onCloseVideo = (e) => {
+    if (!selectedVideo) return;
+    selectedVideo.classList.remove('full-screen');
+    const settingsContainer = document.querySelector('.settings');
+    settingsContainer.classList.remove('visible');
+    selectedVideo = null;
+    }
+
+    onChangeFilter = () => {
+    if (!selectedVideo) return;
+    const brightnessValue = brightnessControl.value;
+    const contrastValue = contrastControl.value;
+    selectedVideo.style.filter = `brightness(${brightnessValue}) contrast(${contrastValue})`;
+    }
+
+    onResetFilters = () => {
+    if (!selectedVideo) return;
+    brightnessControl.value = 1;
+    contrastControl.value = 1;
+    selectedVideo.style.filter = '';
+    }
 
     initVideo(
         firstVideoElement,
@@ -85,6 +123,9 @@
     thirdVideoElement.addEventListener('click', onClickVideo);
     fourthVideoElement.addEventListener('click', onClickVideo);
     closeButtonElement.addEventListener('click', onCloseVideo);
+    brightnessControl.addEventListener('click', onChangeFilter);
+    contrastControl.addEventListener('click', onChangeFilter);
+    resetButtonElement.addEventListener('click', onResetFilters);
 </script>
 
 
