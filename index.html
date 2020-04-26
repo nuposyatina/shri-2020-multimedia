@@ -5,40 +5,60 @@
     <title>Test streams</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="initVideo.js"></script>
-    <script src="resize.js"></script>
     <style>
-        .video {
-            width: 300px;
-            height: 200px;
-            transition: width 3s ease;
-            transition: height 3s ease;
+        .videos {
+            position: relative;
+            display: grid;
+            grid-template-rows: 1fr;
+            grid-template-columns: 1fr 1fr;
         }
+        .video {
+            width: 100%;
+            height: 50vh;
+            position: relative;
+            transition: 0.5s ease;
+        }
+
         .full-screen {
             height: 100vh;
-            width: 100vw;
-            /* position: absolute; */
-            /* z-index: 10;
-            top: 0;
-            left: 0; */
+            width: 100%;
+            position: absolute; 
+            z-index: 10;
             background-color: white;
+        }
+
+        .settings {
+            display: none;
+            position: absolute;
+            z-index: 10;
+            top: 0;
+            right: 0;
+            padding: 10px;
+        }
+
+        .visible {
+            display: block;
         }
     </style>
 </head>
 <body>
 
 <div class="videos">
-    <video id="video-1" class="video" muted></video>
-<video id="video-2" class="video" muted></video>
-<br>
-<video id="video-3" class="video" muted></video>
-<video id="video-4" class="video" muted></video>
+    <video id="video-1" class="video first" muted></video>
+    <video id="video-2" class="video second" muted></video>
+    <video id="video-3" class="video third" muted></video>
+    <video id="video-4" class="video fourth" muted></video>
 </div>
-<div class="settings"></div>
+<div class="settings">
+    <button id="close-button">Все видео</button>
+</div>
+<script src="resize.js"></script>
 <script>
     const firstVideoElement = document.getElementById('video-1');
     const secondVideoElement = document.getElementById('video-2');
     const thirdVideoElement = document.getElementById('video-3');
     const fourthVideoElement = document.getElementById('video-4');
+    const closeButtonElement = document.getElementById('close-button');
 
     initVideo(
         firstVideoElement,
@@ -64,6 +84,7 @@
     secondVideoElement.addEventListener('click', onClickVideo);
     thirdVideoElement.addEventListener('click', onClickVideo);
     fourthVideoElement.addEventListener('click', onClickVideo);
+    closeButtonElement.addEventListener('click', onCloseVideo);
 </script>
 
 
