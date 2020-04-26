@@ -39,6 +39,17 @@
         .visible {
             display: block;
         }
+
+        .volume {
+            height: 50px;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .visualizer {
+            width: 10px;
+            background-color: teal;
+        }
     </style>
 </head>
 <body>
@@ -57,6 +68,25 @@
     <input type="range" name="contrast" id="contrast" min='0' max='5' step="0.01" value='1'>
     <br>
     <button id='reset-button'>Сбросить фильтры</button>
+    <br>
+    <div id='volume' class='volume'>
+        <div class="visualizer"></div>
+        <div class="visualizer"></div>
+        <div class="visualizer"></div>
+        <div class="visualizer"></div>
+        <div class="visualizer"></div>
+        <div class="visualizer"></div>
+        <div class="visualizer"></div>
+        <div class="visualizer"></div>
+        <div class="visualizer"></div>
+        <div class="visualizer"></div>
+        <div class="visualizer"></div>
+        <div class="visualizer"></div>
+        <div class="visualizer"></div>
+        <div class="visualizer"></div>
+        <div class="visualizer"></div>
+        <div class="visualizer"></div>
+    </div>
 </div>
 <script>
     const firstVideoElement = document.getElementById('video-1');
@@ -65,37 +95,65 @@
     const fourthVideoElement = document.getElementById('video-4');
     const closeButtonElement = document.getElementById('close-button');
     const resetButtonElement = document.getElementById('reset-button');
-    let selectedVideo = null;
     const brightnessControl = document.getElementById('brightness');
     const contrastControl = document.getElementById('contrast');
-    const onClickVideo = (e) => {
-    const videoElement = e.target;
     const settingsContainer = document.querySelector('.settings');
-    selectedVideo = videoElement;
-    videoElement.classList.add('full-screen');
-    settingsContainer.classList.add('visible');
+
+    let selectedVideo = null;
+
+    const addVolumeAnalyzer = () => {
+        //создаем контекст
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioContext = new AudioContext();
+        // создаем источник из выбранного видео
+        const source = audioContext.createMediaElementSource(selectedVideo);
+        //создаем анализатор
+        var analyser = audioContext.createAnalyser();
+        analyser.fftSize = 32;
+        //подключаем выход источника ко входу анализатора
+        source.connect(analyser);
+        //всегда равен половине fftSize, значит всего в анализаторе будет 16 столбиков. Поэтому я добавила в верстку 16 div-ов
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        const draw = () => {
+            requestAnimationFrame(draw);
+            analyser.getByteFrequencyData(dataArray);
+            const visualizers = document.querySelectorAll('.visualizer');
+            //ограничила высоту графика до 50px, чтобы он не был слишком большим. Поэтому разделила все значения на 5, чтобы максимум был как раз в районе 50px
+            visualizers.forEach((el, index) => el.style.height = `${dataArray[index] / 5}px`);
+        };
+        draw();
+    }
+
+    const onClickVideo = (e) => {
+        const videoElement = e.target;
+        selectedVideo = videoElement;
+        videoElement.muted = false;
+        videoElement.classList.add('full-screen');
+        settingsContainer.classList.add('visible');
+        addVolumeAnalyzer();
     }
 
     const onCloseVideo = (e) => {
-    if (!selectedVideo) return;
-    selectedVideo.classList.remove('full-screen');
-    const settingsContainer = document.querySelector('.settings');
-    settingsContainer.classList.remove('visible');
-    selectedVideo = null;
+        if (!selectedVideo) return;
+        selectedVideo.classList.remove('full-screen');
+        selectedVideo.muted = true;
+        settingsContainer.classList.remove('visible');
+        selectedVideo = null;
     }
 
     onChangeFilter = () => {
-    if (!selectedVideo) return;
-    const brightnessValue = brightnessControl.value;
-    const contrastValue = contrastControl.value;
-    selectedVideo.style.filter = `brightness(${brightnessValue}) contrast(${contrastValue})`;
+        if (!selectedVideo) return;
+        const brightnessValue = brightnessControl.value;
+        const contrastValue = contrastControl.value;
+        selectedVideo.style.filter = `brightness(${brightnessValue}) contrast(${contrastValue})`;
     }
 
     onResetFilters = () => {
-    if (!selectedVideo) return;
-    brightnessControl.value = 1;
-    contrastControl.value = 1;
-    selectedVideo.style.filter = '';
+        if (!selectedVideo) return;
+        brightnessControl.value = 1;
+        contrastControl.value = 1;
+        selectedVideo.style.filter = '';
     }
 
     initVideo(
